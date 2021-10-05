@@ -3,9 +3,12 @@ import java.sql.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
+import java.lang.Object;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
-@WebServlet("/query")   // Configure the request URL for this servlet (Tomcat 7/Servlet 3.0 upwards)
-public class QueryServlet extends HttpServlet {
+@WebServlet("/json")   // Configure the request URL for this servlet (Tomcat 7/Servlet 3.0 upwards)
+public class JSONServlet extends HttpServlet {
     // The doGet() runs once per HTTP GET request to this servlet.
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -16,7 +19,7 @@ public class QueryServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         // Print an HTML page as the output of the query
         out.println("<html>");
-        out.println("<head><title>Query Response</title></head>");
+        out.println("<head><title>Query Response(JSON)</title></head>");
         out.println("<body>");
         try (
                 // Step 1: Allocate a database 'Connection' object
@@ -37,12 +40,20 @@ public class QueryServlet extends HttpServlet {
             // Step 4: Process the query result set
             int count = 0;
             while(rset.next()) {
+                JSONObject jsonObj = new JSONObject();
+                JSONArray jsonArr = new JSONArray();
+                jsonObj.put("author", rset.getString("author"));
+                jsonObj.put("title", rset.getString("title"));
+                jsonObj.put("price", rset.getDouble("price"));
+                jsonArr.put(jsonObj);
+                out.println(jsonArr);
+            }
                 // Print a paragraph <p>...</p> for each record
-                out.println("<p>" + rset.getString("author")
+                /*out.println("<p>" + rset.getString("author")
                         + ", " + rset.getString("title")
                         + ", $" + rset.getDouble("price") + "</p>");
                 count++;
-            }
+            }*/
             out.println("<p>==== " + count + " records found =====</p>");
         } catch(Exception ex) {
             out.println("<p>Error: " + ex.getMessage() + "</p>");
